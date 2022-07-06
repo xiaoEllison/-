@@ -1,6 +1,15 @@
 <template>
   <div class="login-container">
-    <van-nav-bar title="登录" />
+    <van-nav-bar title="登录">
+      <template #left>
+        <!-- <van-icon name="cross" @click.native="$router.back()" color="white"/> -->
+        <toutiao-icon
+          icon="guanbi1"
+          class="closebtn"
+          @click.native="$router.back()"
+        />
+      </template>
+    </van-nav-bar>
     <van-form @submit="onSubmit" ref="form">
       <van-field
         v-model="user.mobile"
@@ -38,7 +47,6 @@
             class="send-sms-btn"
             native-type="button"
             v-else
-            
             @click="sendPhoneCode"
             :disabled="isDisable"
             >获取验证码</van-button
@@ -55,11 +63,13 @@
 <script>
 import { login, getCode } from "@/api/user.js";
 import { Toast } from "vant";
+import ToutiaoIcon from "@/components/ToutiaoIcon.vue";
 
 export default {
+  components: { ToutiaoIcon },
   data() {
     return {
-      isDisable:false,
+      isDisable: false,
       isCountDownShow: false,
       username: "",
       password: "",
@@ -96,8 +106,10 @@ export default {
     async onSubmit() {
       try {
         const res = await login(this.user);
+        this.$store.commit("setUser", res.data.data);
         console.log(res);
         Toast.success("登录成功");
+        this.$router.push("/my");
       } catch (e) {
         console.log(e);
         Toast.fail(e?.response?.data?.message || "登录失败");
@@ -113,7 +125,7 @@ export default {
       }
       try {
         this.isDisable = true;
-        
+
         await getCode(this.user.mobile);
         console.log("发送验证码成功");
         this.isCountDownShow = true;
@@ -122,7 +134,7 @@ export default {
         this.$toast.fail(e.response.data.message || "出错了");
         // this.isCountDownShow = false;
       } finally {
-        this.isDisable=false
+        this.isDisable = false;
       }
     }
   }
@@ -150,5 +162,9 @@ export default {
       border: none;
     }
   }
+}
+.closebtn {
+  color: #ffffff;
+  font-size: 14px;
 }
 </style>
