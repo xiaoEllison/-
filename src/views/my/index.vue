@@ -15,11 +15,12 @@
         <div class="left">
           <van-image
             fit="cover"
-            src="https://img.yzcdn.cn/vant/cat.jpeg"
+            src="http://toutiao.itheima.net/images/user_head.jpg"
+            
             class="avatar"
             round
           />
-          <span class="name">黑马头条</span>
+          <span class="name">{{ userinfo.name }}</span>
         </div>
         <div class="right">
           <van-button type="default" size="mini" round>编辑资料</van-button>
@@ -28,19 +29,19 @@
       <!-- 粉丝、关注 -->
       <div class="data">
         <div class="data-item">
-          <span>90</span>
+          <span>{{ userinfo.art_count}}</span>
           <span>头条</span>
         </div>
         <div class="data-item">
-          <span>90</span>
+          <span>{{ userinfo.follow_count}}</span>
           <span>关注</span>
         </div>
         <div class="data-item">
-          <span>90</span>
+          <span>{{ userinfo.fans_count}}</span>
           <span>粉丝</span>
         </div>
         <div class="data-item">
-          <span>90</span>
+          <span>{{ userinfo.like_count}}</span>
           <span>获赞</span>
         </div>
       </div>
@@ -66,24 +67,37 @@
     <van-cell title="小智同学" is-link url="" />
     <van-cell title="系统设置" is-link url="" />
     <!-- <van-cell title="系统设置" is-link url="" /> -->
-    <van-cell  v-if="user" class="logOut" title="退出登录" center @click="logOut" />
+    <van-cell
+      v-if="user"
+      class="logOut"
+      title="退出登录"
+      center
+      @click="logOut"
+    />
   </div>
 </template>
 
 <script>
+import { getUserInfo } from "@/api/user";
 import { mapState } from "vuex";
 export default {
   name: "MyIndex",
   components: {},
   props: {},
   data() {
-    return {};
+    return {
+      userinfo: {}
+    };
   },
   computed: {
     ...mapState(["user"])
   },
   watch: {},
-  created() {},
+  created() {
+    if (this.$store.state?.user?.token) {
+      this.getUserInfo();
+    }
+  },
   mounted() {},
   methods: {
     async logOut() {
@@ -92,9 +106,14 @@ export default {
         message: "确认退出"
       });
       // 清除token
-      this.$store.commit('setUser', null);
+      this.$store.commit("setUser", "");
 
       // console.log('confirm');
+    },
+    async getUserInfo() {
+      const res = await getUserInfo();
+      console.log(res.data.data);
+      this.userinfo = res.data.data;
     }
   }
 };

@@ -9,5 +9,5 @@ export function getLocal(key) {
 }
 
 export function setLocal(key, data) {
-  localStorage.setItem(key, typeof(data=='object' ? JSON.stringify(data) : data)); //
+  localStorage.setItem(key, typeof data==='object' ? JSON.stringify(data) : data); //
 }
