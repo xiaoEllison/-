@@ -1,28 +1,26 @@
 <template>
   <div class="article-list">
+    <meta name="referrer" content="no-referrer" />
     <van-pull-refresh
       v-model="isRefreshLoading"
       @refresh="onRefresh"
       :success-text="successText"
       :success-duration="1500"
     >
-    
-    <van-list
-      v-model="loading"
-      :finished="finished"
-      finished-text="没有更多了"
-      @load="onLoad"
-      :error.sync="error"
-      error-text="出错了"
-    >
-      <!-- <van-cell
-        v-for="(item, index) in list"
-        :key="index"
-        :title="item.title"
-        
-      /> -->
-      <ArticleItem v-for="(item, index) in list" :key="index" :article="item" />
-    </van-list>
+      <van-list
+        v-model="loading"
+        :finished="finished"
+        finished-text="没有更多了"
+        @load="onLoad"
+        :error.sync="error"
+        error-text="出错了"
+      >
+        <ArticleItem
+          v-for="(item, index) in list"
+          :key="index"
+          :article="item"
+        />
+      </van-list>
     </van-pull-refresh>
   </div>
 </template>
@@ -65,10 +63,10 @@ export default {
           timestamp: this.timestamp || Date.now(),
           with_top: 1
         });
-        console.log(res);
+        // console.log(res);
         this.list = [...this.list, ...res.data.data.results];
         this.loading = false;
-        console.log(res.data.data.results.length);
+        // console.log(res.data.data.results.length);
         if (res.data.data.results.length === 0) {
           this.finished = true;
         } else {
@@ -90,7 +88,7 @@ export default {
         this.isRefreshLoading = false;
         this.successText = `更新了${res.data.data.results.length}条数据`;
       } catch (err) {
-        console.log(err);
+        // console.log(err);
         this.isRefreshLoading = false; // 关闭下拉刷新的 loading 状态
         this.$toast("刷新失败");
       }

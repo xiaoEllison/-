@@ -107,7 +107,7 @@ export default {
       try {
         const res = await login(this.user);
         this.$store.commit("setUser", res.data.data);
-        console.log(res);
+        // console.log(res);
         Toast.success("登录成功");
         this.$router.push("/my");
       } catch (e) {
@@ -127,7 +127,7 @@ export default {
         this.isDisable = true;
 
         await getCode(this.user.mobile);
-        console.log("发送验证码成功");
+        // console.log("发送验证码成功");
         this.isCountDownShow = true;
         this.$toast.success("发送验证码成功"); //实例上引用toast(提示框)
       } catch (e) {

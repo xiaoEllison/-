@@ -1,6 +1,6 @@
 <template>
   <div>
-    <van-cell :title="article.title">
+    <van-cell :title="article.title" :to="`/art/${article.art_id}`">
       <template #default v-if="article.cover.type === 1">
         <van-image :src="article.cover.images[0]" class="one-img" />
       </template>
@@ -8,13 +8,13 @@
         <div class="img-box" v-if="article.cover.type === 3">
           <van-image
             class="images-three"
-            v-for="item in article.cover.images"
-            :key="item"
+            v-for="(item,index) in article.cover.images"
+            :key="index"
             :src="item"
           />
         </div>
         <span>{{ article.aut_name }}</span
-        ><span>评论{{ article.comm_count }}</span><span>{{ article.pubdate }}</span>
+        ><span>评论{{ article.comm_count }}</span><span>{{ article.pubdate | relativeTime }}</span>
       </template>
     </van-cell>
   </div>
@@ -36,7 +36,7 @@ export default {
   display: flex;
   justify-content: space-between;
   .images-three {
-    width: 150px;
+    width: 200px;
     height: 150px;
   }
 }

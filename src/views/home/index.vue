@@ -3,8 +3,8 @@
     <!-- 搜索 -->
     <van-nav-bar fixed>
       <template #title>
-        <van-button round size="small" block class="search-btn">
-          <van-icon name="search" color="white" /><span style="color: white"
+        <van-button round size="small" block class="search-btn" to="/search">
+          <van-icon name="search" color="white" /><span style="color: white" 
             >搜索</span
           >
         </van-button>
@@ -12,8 +12,12 @@
     </van-nav-bar>
     <!--  -->
     <van-tabs v-model="active" class="channel-tabs" animated swipeable>
-      <van-tab v-for="item in channels" :key="item.id" :title="item.name">
-      <Articlelist  :channel="item"></Articlelist>
+      <van-tab
+        v-for="(item, index) in channels"
+        :key="index"
+        :title="item.name"
+      >
+        <Articlelist :channel="item"></Articlelist>
       </van-tab>
       <!-- <van-tab title="标签 2">内容 2</van-tab>
       <van-tab title="标签 3">内容 3</van-tab>
@@ -25,41 +29,75 @@
       <template #nav-right>
         <div class="placeholder"></div>
         <div class="hamburger-btn">
-          <i class="toutiao toutiao-gengduo"></i>
+          <i
+            class="toutiao toutiao-gengduo"
+            @click="isEditChannelShow = true"
+          ></i>
         </div>
       </template>
     </van-tabs>
+
+    <van-popup
+      class="edit-channel-popup"
+      v-model="isEditChannelShow"
+      position="bottom"
+      :style="{ height: '80%' }"
+      closeable
+      close-icon-position="top-left"
+    >
+      <channel-edit
+        :MyChannels="channels"
+        :active="active"
+        @toChooseChannel="toChooseChannel"
+      />
+    </van-popup>
   </div>
 </template>
 
 <script>
-import Articlelist from '@/components/article-list'
+import Articlelist from "@/components/article-list";
 import { getChannel } from "@/api/channel";
+import ChannelEdit from "./components/channel-edit";
+import { getLocal } from "@/utils/storage";
+import { USERCHANNELKEY } from "@/utils/constants.js";
 export default {
   name: "HomePage",
   components: {
-    Articlelist
+    Articlelist,
+    ChannelEdit
   },
   props: {},
   data() {
     return {
-      active: "",
-      channels: {}
-        
+      active: 0,
+      channels: {},
+      isEditChannelShow: false
     };
   },
   computed: {},
   watch: {},
   created() {
-    this.getChannel()
+    this.getChannel();
   },
   mounted() {},
   methods: {
     async getChannel() {
-      const res = await getChannel();
-
-      console.log(res.data.data.channels);
-      this.channels=res.data.data.channels
+      
+      const token = this.$store.state.user?.token;
+      let channel = getLocal(USERCHANNELKEY);
+      // 判断获取数据的来源
+      if (token || !channel) {
+        const res = await getChannel()
+        channel = res.data.data.channels;
+      }
+      this.channels=channel
+        // console.log(res.data.data.channels);
+        
+    },
+    toChooseChannel(index, status) {
+      // console.log(index);
+      this.active = index;
+      this.isEditChannelShow = status;
     }
   }
 };
@@ -133,5 +171,8 @@ export default {
   flex-shrink: 0;
   width: 66px;
   height: 82px;
+}
+.edit-channel-popup {
+  box-sizing: border-box;
 }
 </style>

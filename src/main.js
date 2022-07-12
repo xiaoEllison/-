@@ -7,6 +7,7 @@ import ToutiaoIcon from "@/components/ToutiaoIcon.vue";
 import vant from "vant";
 import "vant/lib/index.less";
 import "amfe-flexible";
+import "@/utils/dayjs";
 
 
 // import request from "@/utils/request";

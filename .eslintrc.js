@@ -18,6 +18,7 @@ module.exports = {
     "space-befeor-function-paren": "off",
     "vue/multi-word-component-names": "off",
     "vue/comment-directive": "off",
-    "prettier/prettier": "off"
+    "prettier/prettier": "off",
+    "vue/no-mutating-props": 0,
   }
 };
