@@ -36,25 +36,11 @@
           />
           <div slot="title" class="user-name">{{ articleInfo.aut_name }}</div>
           <div slot="label" class="publish-date">{{ articleInfo.pubdate }}</div>
-          <van-button
-            class="follow-btn"
-            type="info"
-            color="#3296fa"
-            round
-            size="small"
-            icon="plus"
-            v-if="!articleInfo.is_followed"
-            @click="follow"
-            >关注</van-button
-          >
-          <van-button
-            class="follow-btn"
-            round
-            size="small"
-            v-else
-            @click="follow"
-            >已关注</van-button
-          >
+
+          <FollowUser
+            v-model="articleInfo.is_followed"
+            :autId="articleInfo.aut_id"
+          />
         </van-cell>
         <!-- /用户信息 -->
 
@@ -66,7 +52,11 @@
           ref="content"
         ></div>
         <van-divider>正文结束</van-divider>
+        <CommentList :articleId="articleInfo.art_id"></CommentList>
       </div>
+
+      <!-- 评论列表 -->
+
       <!-- /加载完成-文章详情 -->
 
       <!-- 加载失败：404 -->
@@ -87,26 +77,51 @@
 
     <!-- 底部区域 -->
     <div class="article-bottom">
-      <van-button class="comment-btn" type="default" round size="small"
+      <van-button
+        class="comment-btn"
+        type="default"
+        round
+        size="small"
+        @click="isPostShow = true"
         >写评论</van-button
       >
       <van-icon name="comment-o" :badge="articleInfo.comm_count" color="#777" />
-      <van-icon color="#777" name="star-o" />
-      <van-icon color="#777" name="good-job-o" />
+      <!-- <van-icon color="#777" name="star-o" /> -->
+      <CollectArtice
+        v-model="articleInfo.is_collected"
+        :autId="articleInfo.aut_id"
+      ></CollectArtice>
+      <!-- <van-icon color="#777" name="good-job-o" /> -->
+      <likeArticle v-model="articleInfo.attitude" :articleId="articleInfo.art_id "></likeArticle>
       <van-icon name="share" color="#777777"></van-icon>
     </div>
     <!-- /底部区域 -->
+    <van-popup position="bottom" style="height: 25%" v-model="isPostShow">
+      <PostComment :target="articleInfo.art_id "></PostComment>
+    </van-popup>
   </div>
 </template>
 
 <script>
+import PostComment from "./components/post-comment.vue";
+import CommentList from "./components/comment-list.vue";
+import likeArticle from "./components/like-article.vue";
+import CollectArtice from "@/views/article/components/collect-article.vue";
+import FollowUser from "@/views/article/components/followuser.vue";
 import { ImagePreview } from "vant";
 import "github-markdown-css";
 import { getArticleById } from "@/api/article.js";
-import { deleteFollow, addFollow } from "@/api/user.js";
+
+// import { deleteFollow, addFollow } from "@/api/user.js";
 export default {
-  name: "ArticleIndex",
-  components: {},
+  // name: "ArticleIndex",
+  components: {
+    FollowUser,
+    CollectArtice,
+    CommentList,
+    likeArticle,
+    PostComment
+  },
   props: {
     articleId: {
       type: [Number, String],
@@ -117,7 +132,8 @@ export default {
     return {
       articleInfo: [],
       isLoading: false,
-      errStatus: ""
+      errStatus: "",
+      isPostShow: false
     };
   },
   computed: {},
@@ -128,29 +144,7 @@ export default {
   mounted() {},
 
   methods: {
-    /* 关注与取关 */
-    async follow() {
-      try {
-        if (this.articleInfo.is_followed) {
-          //已关转变不关注
-          await deleteFollow(this.articleInfo.aut_id);
-        } else {
-          await addFollow(this.articleInfo.aut_id);
-        }
-        //r让当前的状态变成现在的状态取反
-        this.articleInfo.is_followed = !this.articleInfo.is_followed;
-        // 提示 消息
-        this.$notify({
-          type: "success",
-          message: this.articleInfo.is_followed ? "关注成功" : "取消关注"
-        });
-      } catch (e) {
-        this.$notify({
-          type: "danger",
-          message: "操作失败"
-        });
-      }
-    },
+    
     /* 图片预览 */
     previewImg() {
       // console.log(this.$refs.content);
@@ -172,7 +166,7 @@ export default {
       this.isLoading = true;
       try {
         const res = await getArticleById(this.articleId);
-        // console.log(res.data.data);
+        console.log(res.data.data);
         this.articleInfo = res.data.data;
         this.$nextTick(() => {
           this.previewImg();
